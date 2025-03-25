@@ -4,14 +4,17 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoute.js';
+import productRoute from './routes/productroute.js';
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users",userRoutes)
+app.use("/api/products", productRoute);
 
 app.get("/", (req, res) => {
     res.send("API is running...");
