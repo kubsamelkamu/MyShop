@@ -28,16 +28,7 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", protect, admin, async (req, res) => {
   try {
-    
     const { name, description, price, category, brand, countInStock, image } = req.body;
-
-    if (!name || !description || !price || !category || !brand || !countInStock || !image) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    if (!req.user || !req.user._id) {
-      return res.status(401).json({ message: "User not authenticated" });
-    }
 
     const product = new Product({
       name,
@@ -46,16 +37,17 @@ router.post("/", protect, admin, async (req, res) => {
       category,
       brand,
       countInStock,
-      image,
-      user: req.user._id, 
+      image: image || "/uploads/default.jpg",
+      user: req.user._id,
     });
 
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {
-    res.status(500).json({ message: error.message }); 
+    res.status(500).json({ message: "Server Error" });
   }
 });
+
 
 
 router.put("/:id", protect, admin, async (req, res) => {
