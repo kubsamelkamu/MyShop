@@ -5,9 +5,10 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js';
-import userRoutes from './routes/userRoute.js';
+import cartRoutes from './routes/cartRoutes.js';
 import productRoute from './routes/productRoute.js';
 import uploadRoutes from './routes/uploadsRoutes.js';
+import userRoutes from './routes/userRoute.js';
 
 dotenv.config();
 
@@ -15,14 +16,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 app.use("/api/auth", authRoutes);
-app.use("/api/users",userRoutes)
+app.use("/api/cart",cartRoutes);
 app.use("/api/products", productRoute);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/users",userRoutes)
 
 app.get("/", (req, res) => {
     res.send("API is running...");
