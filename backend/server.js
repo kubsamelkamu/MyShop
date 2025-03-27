@@ -6,7 +6,8 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
-import productRoute from './routes/productRoute.js';
+import orderRoutes from './routes/orderRoutes.js';
+import productRoutes from './routes/productRoutes.js';
 import uploadRoutes from './routes/uploadsRoutes.js';
 import userRoutes from './routes/userRoute.js';
 
@@ -23,9 +24,10 @@ app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/cart",cartRoutes);
-app.use("/api/products", productRoute);
+app.use("/api/products", productRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/users",userRoutes)
+app.use("/api/orders", orderRoutes);
 
 app.get("/", (req, res) => {
     res.send("API is running...");
