@@ -1,9 +1,11 @@
 import express from "express";
+import Stripe from "stripe";
 import Order from "../models/orderModel.js";
 import mongoose from "mongoose";
 import { protect, admin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 router.post("/", protect, async (req, res) => {
   try {
@@ -49,12 +51,10 @@ router.get("/:id", protect, async (req, res) => {
   }
 });
 
-// ✅ Update Order Payment & Delivery Status
 router.put("/:id/status", protect, admin, async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate Order ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid Order ID" });
     }
@@ -65,7 +65,6 @@ router.put("/:id/status", protect, admin, async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // ✅ Update Order Status (Mark as Paid or Delivered)
     if (req.body.paymentStatus) {
       order.paymentStatus = req.body.paymentStatus;
     }
@@ -88,5 +87,29 @@ router.get("/", protect, admin, async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
+
+router.put("/:id/pay", protect, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    order.paymentStatus = "Paid";
+    order.paymentResult = {
+      id: req.body.id,
+      status: req.body.status,
+      update_time: req.body.update_time,
+    };
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (error) {
+    res.status(500).json({ message: "Payment Update Failed", error: error.message });
+  }
+});
+
+
 
 export default router;

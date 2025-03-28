@@ -36,6 +36,11 @@ const orderSchema = mongoose.Schema(
             enum: ["Pending", "Paid", "Failed"],
             default: "Pending",
         },
+        paymentResult: { 
+            id: String,  
+            status: String,   
+            update_time: String,   
+        },
         totalPrice: {
             type: Number,
             required: true,
