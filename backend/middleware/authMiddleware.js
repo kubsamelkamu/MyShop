@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/UserModel.js";
+import rateLimit from "express-rate-limit";
 
 export const protect = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
@@ -29,3 +30,8 @@ export const admin = (req, res, next) => {
   }
 };
 
+export const limiter = rateLimit({
+  windowMs: 5 * 60 * 1000, 
+  max: 10, 
+  message: "Too many requests from this IP, please try again after 5 minutes",
+});
