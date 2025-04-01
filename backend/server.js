@@ -11,6 +11,7 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import uploadRoutes from './routes/uploadsRoutes.js';
 import userRoutes from './routes/userRoute.js';
+import wishListRoutes from './routes/wishListRoutes.js';
 
 dotenv.config();
 
@@ -25,11 +26,12 @@ app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/cart",cartRoutes);
+app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/users",userRoutes);
-app.use("/api/orders", orderRoutes);
+app.use("/api/wishlist", wishListRoutes);
 
 
 app.get("/", (req, res) => {
