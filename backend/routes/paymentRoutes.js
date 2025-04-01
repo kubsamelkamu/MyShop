@@ -10,19 +10,20 @@ const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 router.post("/create-payment-intent", protect, async (req, res) => {
-  try {
-    const { amount } = req.body; 
+  const { amount, orderId } = req.body;
 
+  try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount,
+      amount: amount * 100, 
       currency: "usd",
-      payment_method_types: ["card"], 
+      metadata: { orderId },
     });
 
     res.json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
-    res.status(500).json({ message: "Payment Failed", error: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
+
 
 export default router;

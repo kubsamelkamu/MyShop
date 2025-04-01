@@ -1,8 +1,11 @@
 import express from "express";
 import Stripe from "stripe";
 import Order from "../models/orderModel.js";
+import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { protect, admin } from "../middleware/authMiddleware.js";
+
+dotenv.config();
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -110,6 +113,51 @@ router.put("/:id/pay", protect, async (req, res) => {
   }
 });
 
+router.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  let event;
 
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error("❌ Webhook signature verification failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  switch (event.type) {
+    case "payment_intent.succeeded":
+      const paymentIntent = event.data.object;
+      const orderId = paymentIntent.metadata.orderId;
+
+      try {
+        const order = await Order.findById(orderId);
+        if (order) {
+          order.paymentStatus = "Paid";
+          order.paymentResult = {
+            id: paymentIntent.id,
+            status: paymentIntent.status,
+            update_time: new Date().toISOString(),
+            email_address: paymentIntent.receipt_email,
+          };
+          await order.save();
+          console.log(`✅ Order ${orderId} marked as Paid`);
+        } else {
+          console.log(`⚠️ Order not found: ${orderId}`);
+        }
+      } catch (error) {
+        console.error("❌ Error updating order status:", error.message);
+      }
+      break;
+
+    case "payment_intent.payment_failed":
+      console.log("❌ Payment Failed:", event.data.object);
+      break;
+
+    default:
+      console.log(`Unhandled event type: ${event.type}`);
+  }
+
+  res.json({ received: true });
+});
 
 export default router;
