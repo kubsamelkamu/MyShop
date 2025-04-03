@@ -51,7 +51,7 @@ const Login = () => {
       style={{ backgroundImage: "url('/bg_image.jpg')" }}
     >
       <div className="absolute inset-0 bg-black opacity-30"></div>
-      <div className="relative bg-white p-8 rounded-lg shadow-lg w-full max-w-md ml-16 z-10">
+      <div className="relative bg-blue-150 p-8 rounded-lg shadow-lg w-full max-w-md ml-16 z-10">
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">Login</h1>
 
         {message && (
