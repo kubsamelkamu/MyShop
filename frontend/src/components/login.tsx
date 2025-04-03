@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { AiOutlineMail, AiOutlineLock, AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { PulseLoader } from "react-spinners";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store/store";
+import { setCredentials } from "@/store/slices/authSlice";
 
 interface LoginFormInputs {
   email: string;
@@ -16,6 +19,7 @@ const Login = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
@@ -23,9 +27,18 @@ const Login = () => {
     setMessage(null);
     try {
       const response = await api.post("/auth/login", data);
-      setMessage(response.data.message );
+      const { token, user, message: responseMessage } = response.data;
+      localStorage.setItem("token", token); 
+      dispatch(setCredentials({ token, user }));
+
+      setMessage(responseMessage || "Login successful!");
+      
       setTimeout(() => {
-        router.push("/dashboard"); 
+        if (user.isAdmin) {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
       }, 1500);
     } catch (error: unknown) {
       setMessage(error instanceof Error ? error.message : "Invalid credentials. Please try again.");
@@ -39,7 +52,7 @@ const Login = () => {
     >
       <div className="absolute inset-0 bg-black opacity-30"></div>
       <div className="relative bg-white p-8 rounded-lg shadow-lg w-full max-w-md ml-16 z-10">
-        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">Login </h1>
+        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">Login</h1>
 
         {message && (
           <div className="mb-4 text-center text-sm text-red-600 bg-red-100 p-2 rounded">
