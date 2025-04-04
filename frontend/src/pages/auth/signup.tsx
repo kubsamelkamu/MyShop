@@ -1,9 +1,9 @@
-import SignupPage from "@/components/signUp";
+import SignUp from "@/components/auth/SignUp";
 
 function SignUpPage() {
   return (
     <div>
-      <SignupPage />
+      <SignUp/>
     </div>
   );
 }

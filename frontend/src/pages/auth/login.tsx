@@ -1,4 +1,4 @@
-import Login from "@/components/login";
+import Login from '@/components/auth/Login';
 
 function LoginPage() {
   return (

@@ -12,7 +12,7 @@ interface SignupFormInputs {
   password: string;
 }
 
-const Signup = () => {
+const SignUp = () => {
   const { register, handleSubmit, formState: { errors,isSubmitting } } = useForm<SignupFormInputs>();
   const [message, setMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -117,4 +117,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default SignUp;
