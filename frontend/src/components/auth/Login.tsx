@@ -35,9 +35,9 @@ const Login = () => {
       
       setTimeout(() => {
         if (user.isAdmin) {
-          router.push("/admin/dashboard");
+          router.push("/");
         } else {
-          router.push("/dashboard");
+          router.push("/");
         }
       }, 1500);
     } catch (error: unknown) {
