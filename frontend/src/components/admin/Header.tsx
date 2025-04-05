@@ -30,7 +30,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
             <FiMenu size={24} />
           </button>
         )}
-        <h1 className="text-xl font-bold text-gray-800">Admin Dashboard</h1>
+        <h1 className="text-xl font-bold text-blue-800">Admin Dashboard</h1>
       </div>
       <div className="flex items-center gap-4">
         {user && (
@@ -43,7 +43,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
                 height={32}
                 className="rounded-full"
               />
-              <span>{user.name}</span>
+              <span className="text-blue-700">{user.name}</span>
             </Link>
             <button
               onClick={handleLogout}
