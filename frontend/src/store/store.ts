@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import cartReducer from './slices/cartSlice';
 import orderReducer from './slices/orderSlice';
 import productReducer from './slices/productSlice';
+import userReducer from './slices/userSlice';
 import wishlistReducer from './slices/wishListSlice';
 
 import {
@@ -17,12 +18,12 @@ import {
 } from 'redux-persist';
 
 import storage from 'redux-persist/lib/storage';
-
 const rootReducer = combineReducers({
   auth: authReducer,
   cart: cartReducer,
   orders: orderReducer,
   products: productReducer,
+  users: userReducer, 
   wishlist: wishlistReducer,
 });
 
@@ -32,7 +33,10 @@ const persistConfig = {
   whitelist: ['auth'], 
 };
 
+
+
 const persistedReducer = persistReducer(persistConfig, rootReducer);
+
 
 const store = configureStore({
   reducer: persistedReducer,
