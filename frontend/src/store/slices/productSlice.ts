@@ -1,9 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import api from "@/services/api";
 import axios from "axios";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-interface Review {
+export interface Review {
   user: string;
   name: string;
   rating: number;
@@ -11,7 +10,7 @@ interface Review {
   createdAt: string;
 }
 
-interface Product {
+export interface Product {
   _id: string;
   name: string;
   description: string;
@@ -41,32 +40,63 @@ const initialState: ProductState = {
   error: null,
 };
 
+
 export const fetchProducts = createAsyncThunk<Product[]>(
   "products/fetchProducts",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/products`); 
+      const response = await api.get("/products");
       return response.data;
     } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to fetch products");
+      if (axios.isAxiosError(error)) { 
+        return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
       }
       return rejectWithValue("Failed to fetch products");
     }
   }
 );
 
-export const fetchProductById = createAsyncThunk<Product, string>(
-  "products/fetchProductById",
-  async (id, { rejectWithValue }) => {
+export const createProduct = createAsyncThunk<Product, Partial<Product>>(
+  "products/createProduct",
+  async (productData, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/products/${id}`); 
+      const response = await api.post("/products", productData);
       return response.data;
     } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to fetch product details");
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
       }
-      return rejectWithValue("Failed to fetch product details");
+      return rejectWithValue("Failed to fetch products");
+    }
+  }
+);
+
+export const updateProduct = createAsyncThunk<Product, { id: string; data: Partial<Product> }>(
+  "products/updateProduct",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`/products/${id}`, data);
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+      }
+      return rejectWithValue("Failed to fetch products");
+    }
+  }
+);
+
+export const deleteProduct = createAsyncThunk<string, string>(
+  "products/deleteProduct",
+  async (id, { rejectWithValue }) => {
+    try {
+      await api.delete(`/products/${id}`);
+      return id;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+      }
+      return rejectWithValue("Failed to fetch products");
     }
   }
 );
@@ -76,31 +106,60 @@ const productSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder
-      .addCase(fetchProducts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
-        state.loading = false;
-        state.products = action.payload;
-      })
-      .addCase(fetchProducts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(fetchProductById.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchProductById.fulfilled, (state, action: PayloadAction<Product>) => {
-        state.loading = false;
-        state.productDetails = action.payload;
-      })
-      .addCase(fetchProductById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
+    
+    builder.addCase(fetchProducts.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(fetchProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
+      state.loading = false;
+      state.products = action.payload;
+    });
+    builder.addCase(fetchProducts.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(createProduct.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(createProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+      state.loading = false;
+      state.products.push(action.payload);
+    });
+    builder.addCase(createProduct.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(updateProduct.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(updateProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+      state.loading = false;
+      state.products = state.products.map((prod) =>
+        prod._id === action.payload._id ? action.payload : prod
+      );
+    });
+    builder.addCase(updateProduct.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(deleteProduct.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(deleteProduct.fulfilled, (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.products = state.products.filter((prod) => prod._id !== action.payload);
+    });
+    builder.addCase(deleteProduct.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
   },
 });
 
