@@ -1,15 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Product } from "@/components/admin/ProductTable";
+
+const apiurl = process.env.NEXT_PUBLIC_API_URL
 
 interface ProductFormInputs {
   name: string;
   description: string;
   price: number;
+  stock: number;
   category: string;
   brand: string;
   countInStock: number;
-  image: string;
+  image: string; 
 }
 
 interface ProductFormProps {
@@ -19,15 +22,77 @@ interface ProductFormProps {
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ProductFormInputs>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<ProductFormInputs>({
     defaultValues: product || {},
   });
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     reset(product || {});
   }, [product, reset]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append("image", file);
+  
+    try {
+      const response = await fetch(`${apiurl}/upload`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Image upload failed");
+      }
+  
+      const data = await response.json();
+      return data.imageUrl;
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Upload error:", error.message);
+      } else {
+        console.error("An unknown error occurred during upload.");
+      }
+      return null;
+    }
+  };
+  
+
   const onFormSubmit: SubmitHandler<ProductFormInputs> = async (data) => {
+    if (selectedFile) {
+      try {
+        setUploading(true);
+        const imageUrl = await uploadImage(selectedFile);
+        if (imageUrl) {
+          setValue("image", imageUrl, { shouldValidate: true });
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("Upload error:", error.message);
+        } else {
+          console.error("An unknown error occurred during upload.");
+        }
+      } finally {
+        setUploading(false);
+      }
+    }
     onSubmit(data);
   };
 
@@ -101,24 +166,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         </div>
       </div>
       <div>
-        <label className="block text-gray-700">Image URL</label>
+        <label className="block text-gray-700">Product Image</label>
         <input
-          type="text"
-          {...register("image", { required: "Image URL is required" })}
+          type="file"
+          accept="image/*"
+          {...register("image", { required: "Image is required" })}
+          onChange={handleFileChange}
           className="w-full border px-3 py-2 rounded"
-          placeholder="Image URL"
         />
-        {errors.image && <p className="text-red-500 text-xs">{errors.image.message}</p>}
       </div>
+      <input type="hidden" {...register("image", { required: "Image URL is required" })} />
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isSubmitting || uploading}
         className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
       >
-        {isSubmitting ? "Saving..." : product ? "Update Product" : "Add Product"}
+        {isSubmitting || uploading ? "Saving..." : product ? "Update Product" : "Add Product"}
       </button>
     </form>
   );
 };
 
-export default ProductForm;
+export default ProductForm; 
