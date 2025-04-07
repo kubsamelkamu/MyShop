@@ -33,6 +33,7 @@ const Products = () => {
       .unwrap()
       .then(() => {
         toast.success("Product deleted successfully!");
+        dispatch(fetchProducts());
       })
       .catch((err) => {
         toast.error("Failed to delete product: " + err);
@@ -45,7 +46,9 @@ const Products = () => {
         .unwrap()
         .then(() => {
           toast.success("Product updated successfully!");
+          dispatch(fetchProducts());
           setIsModalOpen(false);
+          toast.success("Product updated successfully!");
         })
         .catch((err) => {
           toast.error("Failed to update product: " + err);
@@ -55,6 +58,7 @@ const Products = () => {
         .unwrap()
         .then(() => {
           toast.success("Product added successfully!");
+          dispatch(fetchProducts());
           setIsModalOpen(false);
         })
         .catch((err) => {
@@ -70,7 +74,7 @@ const Products = () => {
         <button
           type="button"
           onClick={handleAdd}
-          className="mb-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          className="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-green-600"
         >
           Add Product
         </button>

@@ -103,7 +103,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       <div>
         <label className="block text-gray-700">Image URL</label>
         <input
-          type="file"
+          type="text"
           {...register("image", { required: "Image URL is required" })}
           className="w-full border px-3 py-2 rounded"
           placeholder="Image URL"
