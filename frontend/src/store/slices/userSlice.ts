@@ -1,15 +1,13 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
-import { AuthState } from "./authSlice"; 
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-interface User {
+export interface User {
   _id: string;
   name: string;
   email: string;
   isAdmin: boolean;
-  createdAt: string;
 }
 
 interface UserState {
@@ -24,52 +22,76 @@ const initialState: UserState = {
   error: null,
 };
 
-
-export const fetchUsers = createAsyncThunk<User[], void, { state: { auth: AuthState } }>(
-  "users/fetchUsers",
-  async (_, { getState, rejectWithValue }) => {
+export const fetchUsers = createAsyncThunk<User[], void>(
+  'users/fetchUsers',
+  async (_, { rejectWithValue }) => {
     try {
-      const { token } = getState().auth;
-
-      if (!token) {
-        return rejectWithValue("Authentication token not found");
-      }
-
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
-      const response = await axios.get(`${apiUrl}/users`, config);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${apiUrl}/users`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to fetch users");
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data?.message || "Failed to users");
       }
       return rejectWithValue("Failed to fetch users");
     }
   }
 );
 
+export const toggleAdminStatus = createAsyncThunk<User, { userId: string; isAdmin: boolean }>(
+  'users/toggleAdminStatus',
+  async ({ userId, isAdmin }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put(
+        `${apiUrl}/users/${userId}`,
+        { isAdmin }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return response.data; 
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data?.message || "Failed to update users");
+      }
+      return rejectWithValue("Failed to update users");
+    }
+  }
+);
+
 const userSlice = createSlice({
-  name: "users",
+  name: 'users',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder
-      .addCase(fetchUsers.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchUsers.fulfilled, (state, action: PayloadAction<User[]>) => {
-        state.loading = false;
-        state.users = action.payload;
-      })
-      .addCase(fetchUsers.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
+    builder.addCase(fetchUsers.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(fetchUsers.fulfilled, (state, action: PayloadAction<User[]>) => {
+      state.loading = false;
+      state.users = action.payload;
+    });
+    builder.addCase(fetchUsers.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(toggleAdminStatus.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(toggleAdminStatus.fulfilled, (state, action: PayloadAction<User>) => {
+      state.loading = false;
+      state.users = state.users.map((user) =>
+        user._id === action.payload._id ? action.payload : user
+      );
+    });
+    builder.addCase(toggleAdminStatus.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
   },
 });
 
