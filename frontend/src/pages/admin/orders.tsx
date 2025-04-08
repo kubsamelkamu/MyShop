@@ -46,10 +46,12 @@ const Orders = () => {
   };
 
   const handleStatusUpdate = () => {
+
     if (selectedOrderId && newStatus) {
-      dispatch(updateOrderStatus({ orderId: selectedOrderId, status: newStatus }))
+      dispatch(updateOrderStatus({ orderId: selectedOrderId, orderStatus: newStatus }))
         .unwrap()
-        .then(() => {
+        .then((updatedOrder) => {
+          console.log("Update successful, updated order:", updatedOrder);
           toast.success("Order status updated successfully!");
           setIsModalOpen(false);
           dispatch(fetchAllOrders());
@@ -62,6 +64,7 @@ const Orders = () => {
       toast.error("Please select a status");
     }
   };
+  
 
   return (
     <AdminLayout>
