@@ -1,5 +1,5 @@
 import React from "react";
-import { FiEye, FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiEye, FiEdit } from "react-icons/fi";
 
 export interface Order {
   _id: string;
@@ -13,10 +13,9 @@ interface OrderTableProps {
   orders: Order[];
   onView: (orderId: string) => void;
   onEdit: (orderId: string) => void;
-  onDelete: (orderId: string) => void;
 }
 
-const OrderTable: React.FC<OrderTableProps> = ({ orders, onView, onEdit, onDelete }) => {
+const OrderTable: React.FC<OrderTableProps> = ({ orders, onView, onEdit }) => {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white">
@@ -31,7 +30,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, onView, onEdit, onDelet
           </tr>
         </thead>
         <tbody>
-          {orders && orders.map((order) => {
+          {orders.map((order) => {
             const userName =
               typeof order.user === "object" ? order.user.name : order.user;
             return (
@@ -44,14 +43,17 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, onView, onEdit, onDelet
                   {new Date(order.createdAt).toLocaleDateString()}
                 </td>
                 <td className="py-2 px-4 text-center flex justify-center gap-2">
-                  <button onClick={() => onView(order._id)} className=" text-blue-500 hover:text-blue-700">
+                  <button
+                    onClick={() => onView(order._id)}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
                     <FiEye />
                   </button>
-                  <button onClick={() => onEdit(order._id)} className="text-green-500 hover:text-green-700">
+                  <button
+                    onClick={() => onEdit(order._id)}
+                    className="text-green-500 hover:text-green-700"
+                  >
                     <FiEdit />
-                  </button>
-                  <button onClick={() => onDelete(order._id)} className="text-red-500 hover:text-red-700">
-                    <FiTrash2 />
                   </button>
                 </td>
               </tr>
