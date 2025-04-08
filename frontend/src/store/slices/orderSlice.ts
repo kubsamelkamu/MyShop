@@ -128,31 +128,37 @@ export const deleteOrder = createAsyncThunk<string, string>(
       return orderId;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || 'Create order failed');
+        return rejectWithValue(error.response.data?.message || 'Delete order failed');
       }
-      return rejectWithValue('Create order failed');
+      return rejectWithValue('Delete order failed');
     }
   }
 );
 
-export const updateOrderStatus = createAsyncThunk<Order, { orderId: string; status: string }>(
+export const updateOrderStatus = createAsyncThunk<Order, { orderId: string; orderStatus: string }>(
   'orders/updateOrderStatus',
-  async ({ orderId, status }, { rejectWithValue }) => {
+  async ({ orderId, orderStatus }, { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("token");
       const response = await axios.put(
         `${apiUrl}/orders/${orderId}/status`,
-        { status },
-        getAuthHeader()
+        { orderStatus }, 
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || 'Create order failed');
+        return rejectWithValue(error.response.data?.message || 'Delete order failed');
       }
-      return rejectWithValue('Create order failed');
+      return rejectWithValue('Delete order failed');
     }
   }
 );
+
 
 const orderSlice = createSlice({
   name: 'orders',
