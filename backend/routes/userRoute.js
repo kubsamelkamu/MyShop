@@ -37,4 +37,20 @@ router.put("/:id", protect, admin, async (req, res) => {
   }
 });
 
+
+router.delete("/:id", protect, admin, async (req, res)=> {
+  try {
+    const { id } = req.params;
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid User ID" });
+    }
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 export default router;
