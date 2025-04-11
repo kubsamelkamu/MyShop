@@ -3,8 +3,9 @@ import { useState } from "react";
 import { FiMenu, FiX, FiShoppingCart, FiHome, FiBox, FiHeart, FiUser } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import { IconType } from "react-icons";
 
-const NavIcon = ({ href, icon: Icon, label, count = 0 }: { href: string; icon: any; label: string; count?: number }) => (
+const NavIcon = ({ href, icon: Icon, label, count = 0 }: { href: string; icon: IconType; label: string; count?: number }) => (
   <Link href={href} className="relative group p-2 rounded-full hover:bg-white/10 transition-all duration-300">
     <Icon className="text-white w-6 h-6 group-hover:scale-110 group-hover:text-blue-300 transition-all duration-300" />
     {count > 0 && (
@@ -25,12 +26,12 @@ const Header = () => {
 
   return (
     <header className="bg-gradient-to-r from-blue-800 to-indigo-900 shadow-lg fixed top-0 left-0 right-0 z-50">
-      <div className="container mx-auto px-4 py-5">
+      <div className="container mx-auto px-4 py-5 ">
         <div className="flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold text-white hover:text-blue-200 transition-colors duration-300">
             MyShop
-          </Link>
-
+          </Link>        
+          
           <nav className="hidden md:flex items-center space-x-8">
             <NavIcon href="/" icon={FiHome} label="Home" />
             <NavIcon href="/products" icon={FiBox} label="Products" />
