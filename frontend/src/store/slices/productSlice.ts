@@ -31,6 +31,9 @@ interface ProductState {
   productDetails: Product | null;
   loading: boolean;
   error: string | null;
+  currentPage: number;
+  totalPages: number;
+  totalProducts: number;
 }
 
 const initialState: ProductState = {
@@ -38,23 +41,32 @@ const initialState: ProductState = {
   productDetails: null,
   loading: false,
   error: null,
+  currentPage: 1,
+  totalPages: 1,
+  totalProducts: 0,
 };
 
 
-export const fetchProducts = createAsyncThunk<Product[]>(
-  "products/fetchProducts",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await api.get("/products");
-      return response.data;
+export const fetchProducts = createAsyncThunk<
+  {
+    products: Product[];
+    currentPage: number;
+    totalPages: number;
+    totalProducts: number;
+  },
+  { page: number; limit: number },
+  { rejectValue: string }
+>("products/fetchProducts", async ({ page, limit }, { rejectWithValue }) => {
+  try {
+    const response = await api.get(`/products?page=${page}&limit=${limit}`);
+    return response.data;
     } catch (error: unknown) {
-      if (axios.isAxiosError(error)) { 
+      if (axios.isAxiosError(error)) {
         return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
       }
       return rejectWithValue("Failed to fetch products");
     }
-  }
-);
+});
 
 export const createProduct = createAsyncThunk<Product, Partial<Product>>(
   "products/createProduct",
@@ -64,9 +76,9 @@ export const createProduct = createAsyncThunk<Product, Partial<Product>>(
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+        return rejectWithValue(error.response?.data?.message || "Failed to create product");
       }
-      return rejectWithValue("Failed to fetch products");
+      return rejectWithValue("Failed to create product");
     }
   }
 );
@@ -79,9 +91,9 @@ export const updateProduct = createAsyncThunk<Product, { id: string; data: Parti
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+        return rejectWithValue(error.response?.data?.message || "Failed to update product");
       }
-      return rejectWithValue("Failed to fetch products");
+      return rejectWithValue("Failed to update product");
     }
   }
 );
@@ -94,9 +106,9 @@ export const deleteProduct = createAsyncThunk<string, string>(
       return id;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
+        return rejectWithValue(error.response?.data?.message || "Failed to delete product");
       }
-      return rejectWithValue("Failed to fetch products");
+      return rejectWithValue("Failed to delete product");
     }
   }
 );
@@ -106,15 +118,28 @@ const productSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    
     builder.addCase(fetchProducts.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
-    builder.addCase(fetchProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
-      state.loading = false;
-      state.products = action.payload;
-    });
+    builder.addCase(
+      fetchProducts.fulfilled,
+      (
+        state,
+        action: PayloadAction<{
+          products: Product[];
+          currentPage: number;
+          totalPages: number;
+          totalProducts: number;
+        }>
+      ) => {
+        state.loading = false;
+        state.products = action.payload.products;
+        state.currentPage = action.payload.currentPage;
+        state.totalPages = action.payload.totalPages;
+        state.totalProducts = action.payload.totalProducts;
+      }
+    );
     builder.addCase(fetchProducts.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
