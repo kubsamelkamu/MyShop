@@ -17,7 +17,7 @@ const Dashboard = () => {
   const users = useSelector((state: RootState) => state.users.users);
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchProducts({page:1 ,limit: 100}));
     dispatch(fetchAllOrders());
     dispatch(fetchUsers());
   }, [dispatch]);
