@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import Link from "next/link";
 import Image from "next/image";
 
@@ -37,7 +36,7 @@ const ProductCard: React.FC<Product> = ({ _id, name, price, image }) => {
 
             <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-30 transition-colors duration-300 flex items-center justify-center">
               <span className="opacity-0 group-hover:opacity-100 text-white text-lg font-medium transition-opacity duration-300">
-                Quick View
+                View Product
               </span>
             </div>
           </div>
