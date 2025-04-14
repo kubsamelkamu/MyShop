@@ -1,8 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Product } from "@/components/admin/ProductTable";
 
-const apiurl = process.env.NEXT_PUBLIC_API_URL
+const apiurl = process.env.NEXT_PUBLIC_API_URL;
 
 interface ProductFormInputs {
   name: string;
@@ -26,7 +27,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     register,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormInputs>({
     defaultValues: product || {},
@@ -63,7 +63,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       }
   
       const data = await response.json();
-      return data.imageUrl;
+      console.log("Upload response data:", data);
+
+      return data.image || data.imageUrl || data.url || data.path || null;
     } catch (error) {
       if (error instanceof Error) {
         console.error("Upload error:", error.message);
@@ -74,6 +76,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
     }
   };
   
+  
 
   const onFormSubmit: SubmitHandler<ProductFormInputs> = async (data) => {
     if (selectedFile) {
@@ -81,19 +84,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         setUploading(true);
         const imageUrl = await uploadImage(selectedFile);
         if (imageUrl) {
-          setValue("image", imageUrl, { shouldValidate: true });
-        }
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("Upload error:", error.message);
+          const updatedData = {
+            ...data,
+            image: imageUrl,
+          };
+          onSubmit(updatedData);
         } else {
-          console.error("An unknown error occurred during upload.");
+          console.error("Image URL not returned from upload.");
         }
+      } catch (error) {
+        console.error("Upload error during form submission", error);
       } finally {
         setUploading(false);
       }
+    } else {
+      onSubmit(data);
     }
-    onSubmit(data);
   };
 
   return (
@@ -101,6 +107,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
       <h2 className="text-xl font-bold mb-4">
         {product ? "Edit Product" : "Add Product"}
       </h2>
+
       <div>
         <label className="block text-gray-700">Name</label>
         <input
@@ -111,6 +118,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         />
         {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
       </div>
+
       <div>
         <label className="block text-gray-700">Description</label>
         <textarea
@@ -120,6 +128,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
         ></textarea>
         {errors.description && <p className="text-red-500 text-xs">{errors.description.message}</p>}
       </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-gray-700">Price</label>
@@ -143,6 +152,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           {errors.countInStock && <p className="text-red-500 text-xs">{errors.countInStock.message}</p>}
         </div>
       </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-gray-700">Category</label>
@@ -165,17 +175,30 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
           {errors.brand && <p className="text-red-500 text-xs">{errors.brand.message}</p>}
         </div>
       </div>
+
+      {/* Image Upload */}
       <div>
         <label className="block text-gray-700">Product Image</label>
         <input
           type="file"
           accept="image/*"
-          {...register("image", { required: "Image is required" })}
           onChange={handleFileChange}
           className="w-full border px-3 py-2 rounded"
+          title="Upload a product image"
         />
       </div>
-      <input type="hidden" {...register("image", { required: "Image URL is required" })} />
+
+      {/* Preview */}
+      {product && product.image && typeof product.image === "string" && (
+        <div className="mt-2">
+          <img
+            src={product.image}
+            alt="Product"
+            className="w-32 h-32 object-cover rounded"
+          />
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={isSubmitting || uploading}
@@ -187,4 +210,4 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit }) => {
   );
 };
 
-export default ProductForm; 
+export default ProductForm;
