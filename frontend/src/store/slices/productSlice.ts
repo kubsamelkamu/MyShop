@@ -46,7 +46,6 @@ const initialState: ProductState = {
   totalProducts: 0,
 };
 
-
 export const fetchProducts = createAsyncThunk<
   {
     products: Product[];
@@ -67,6 +66,23 @@ export const fetchProducts = createAsyncThunk<
       return rejectWithValue("Failed to fetch products");
     }
 });
+
+export const fetchProductById = createAsyncThunk<
+  Product,
+  string,
+  { rejectValue: string }
+>("products/fetchProductById", async (id, { rejectWithValue }) => {
+  try {
+    const response = await api.get(`/products/${id}`);
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch product details");
+    }
+    return rejectWithValue("Failed to fetch product details");
+  }
+});
+
 
 export const createProduct = createAsyncThunk<Product, Partial<Product>>(
   "products/createProduct",
@@ -116,7 +132,11 @@ export const deleteProduct = createAsyncThunk<string, string>(
 const productSlice = createSlice({
   name: "products",
   initialState,
-  reducers: {},
+  reducers: {
+  clearProductDetails(state) {
+    state.productDetails = null;
+  },},
+  
   extraReducers: (builder) => {
     builder.addCase(fetchProducts.pending, (state) => {
       state.loading = true;
@@ -145,6 +165,20 @@ const productSlice = createSlice({
       state.error = action.payload as string;
     });
 
+    builder.addCase(fetchProductById.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+      state.productDetails = null;
+    });
+    builder.addCase(fetchProductById.fulfilled, (state, action: PayloadAction<Product>) => {
+      state.loading = false;
+      state.productDetails = action.payload;
+    });
+    builder.addCase(fetchProductById.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+  
     builder.addCase(createProduct.pending, (state) => {
       state.loading = true;
       state.error = null;
