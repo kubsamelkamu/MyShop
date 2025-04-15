@@ -22,51 +22,71 @@ const initialState: WishlistState = {
   error: null,
 };
 
-export const fetchWishlist = createAsyncThunk<WishlistItem[], string>(
+export const fetchWishlist = createAsyncThunk<WishlistItem[]>(
   "wishlist/fetchWishlist",
-  async (userId, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/wishlist/${userId}`);
-      return response.data.items; 
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${apiUrl}/wishlist`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.items;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to fetch product details");
+        return rejectWithValue(error.response.data?.message || "Failed to fetch wishlist");
       }
-      return rejectWithValue("Failed to fetch product details");
+      return rejectWithValue("Failed to fetch wishlist");
     }
   }
 );
 
-
-export const addToWishlist = createAsyncThunk<WishlistItem, { userId: string; productId: string }>(
+export const addToWishlist = createAsyncThunk<WishlistItem, { productId: string }>(
   "wishlist/addToWishlist",
-  async ({ userId, productId }, { rejectWithValue }) => {
+  async ({ productId }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/wishlist/${userId}`, { product: productId });
-      return response.data;
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${apiUrl}/wishlist`,
+        { product: productId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const addedItem = response.data.items?.slice(-1)[0]; 
+      return addedItem;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to fetch product details");
+        return rejectWithValue(error.response.data?.message || "Failed to add to wishlist");
       }
-      return rejectWithValue("Failed to fetch product details");
+      return rejectWithValue("Failed to add to wishlist");
     }
   }
 );
 
-export const removeFromWishlist = createAsyncThunk<string, { userId: string; productId: string }>(
+export const removeFromWishlist = createAsyncThunk<string, { productId: string }>(
   "wishlist/removeFromWishlist",
-  async ({ userId, productId }, { rejectWithValue }) => {
+  async ({ productId }, { rejectWithValue }) => {
     try {
-      await axios.delete(`${apiUrl}/wishlist/${userId}/${productId}`);
+      const token = localStorage.getItem("token");
+      await axios.delete(`${apiUrl}/wishlist/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return productId;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to fetch product details");
+        return rejectWithValue(error.response.data?.message || "Failed to remove from wishlist");
       }
-      return rejectWithValue("Failed to fetch product details");
+      return rejectWithValue("Failed to remove from wishlist");
     }
   }
 );
+
 
 const wishlistSlice = createSlice({
   name: "wishlist",
