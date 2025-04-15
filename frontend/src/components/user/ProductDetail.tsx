@@ -38,12 +38,12 @@ interface ProductDetailPageProps {
 
 const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ product }) => {
   return (
-    <div className="container mt-18 mx-auto px-4 py-6">
+    <div className="container mt-20 mx-auto px-4 py-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <ProductImages images={[product.image]} />
         <div>
           <ProductInfo product={product} />
-          <ActionsBar productId={product._id} />
+          <ActionsBar product={product} />
         </div>
 
       <div className="mt-10">
