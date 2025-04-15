@@ -42,16 +42,28 @@ export const addToCart = createAsyncThunk<CartItem, CartItem>(
   "cart/addToCart",
   async (cartItem, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${apiUrl}/cart`, cartItem);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return rejectWithValue("No token provided");
+      }
+      
+      const response = await axios.post(`${apiUrl}/cart`, cartItem, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to fetch product details");
+        return rejectWithValue(
+          error.response.data?.message || "Failed to add product to cart"
+        );
       }
-      return rejectWithValue("Failed to fetch product details");
+      return rejectWithValue("Failed to add product to cart");
     }
   }
 );
+
 
 export const removeFromCart = createAsyncThunk<string, string>(
   "cart/removeFromCart",
