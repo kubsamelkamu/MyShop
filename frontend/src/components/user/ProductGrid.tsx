@@ -21,7 +21,7 @@ const ProductCard: React.FC<Product> = ({ _id, name, price, image }) => {
     <div
       className="border rounded-lg overflow-hidden shadow-sm hover:shadow-lg transform hover:scale-105 transition-all duration-300"
     >
-      <Link href={`/products/${_id}`} legacyBehavior>
+      <Link href={`/user/products/${_id}`} legacyBehavior>
         <a className="group relative block">
           <div className="relative w-full h-48 overflow-hidden">
             <Image
@@ -33,7 +33,7 @@ const ProductCard: React.FC<Product> = ({ _id, name, price, image }) => {
               unoptimized={true}
               className="rounded-t-lg group-hover:scale-110 transition-transform duration-300"
             />
-
+            
             <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-30 transition-colors duration-300 flex items-center justify-center">
               <span className="opacity-0 group-hover:opacity-100 text-white text-lg font-medium transition-opacity duration-300">
                 View Product
