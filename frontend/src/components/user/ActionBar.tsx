@@ -34,7 +34,7 @@ const ActionsBar: React.FC<ActionsBarProps> = ({ product }) => {
         setMessage('Product added to cart!');
       })
       .catch(() => {
-        setMessage('Failed to add product to cart');
+        setMessage('product already in cart');
         return;
       });
   };
