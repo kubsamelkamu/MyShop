@@ -11,6 +11,7 @@ export interface Review {
 }
 
 export interface Product {
+  title: string | undefined;
   _id: string;
   name: string;
   description: string;
@@ -243,10 +244,8 @@ const productSlice = createSlice({
         state.error = action.payload as string;
       })
 
-// In your extraReducers
 .addCase(submitReview.fulfilled, (state, action) => {
   if (state.productDetails) {
-    // Make sure the new review has a valid rating
     const newReview = {
       ...action.payload.review,
       rating: action.payload.review.rating || 0,
