@@ -36,7 +36,7 @@ const Header = () => {
             <NavIcon href="/products" icon={FiBox} label="Products" />
             <div className="flex items-center space-x-6 ml-4">
               <NavIcon href="/cart" icon={FiShoppingCart} label="Cart"  />
-              <NavIcon href="/wishlist" icon={FiHeart} label="Wishlist"  />
+              <NavIcon href="/user/wishlist" icon={FiHeart} label="Wishlist"  />
               {user ? (
                 <Link
                   href="/account"
@@ -78,7 +78,7 @@ const Header = () => {
             <Link href="/cart" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
               <FiShoppingCart className="h-6 w-6" /> Cart
             </Link>
-            <Link href="/wishlist" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
+            <Link href="/user/wishlist" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
               <FiHeart className="h-6 w-6" /> Wishlist
             </Link>
             {user ? (
