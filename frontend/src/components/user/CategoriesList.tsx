@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 
 const categories = [
@@ -16,11 +15,9 @@ const CategoryList = () => {
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {categories.map((category, index) => (
-          <Link
+          <a
             key={index}
-            href={`/products?category=${encodeURIComponent(category.name)}`}
-            className="relative group block rounded-lg overflow-hidden shadow-lg"
-          >
+            className="relative group block rounded-lg overflow-hidden shadow-lg" >
             <div className="w-full h-48 md:h-64 relative">
               <Image
                 src={category.image}
@@ -35,7 +32,7 @@ const CategoryList = () => {
                 </span>
               </div>
             </div>
-          </Link>
+          </a>
         ))}
       </div>
     </div>
