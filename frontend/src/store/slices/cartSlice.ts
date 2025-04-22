@@ -27,8 +27,8 @@ export const fetchCart = createAsyncThunk<CartItem[], string>(
   "cart/fetchCart",
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${apiUrl}/cart/${userId}`); 
-      return response.data.items; 
+      const response = await axios.get(`${apiUrl}/cart/${userId}`);
+      return response.data.items;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
         return rejectWithValue(error.response.data?.message || "Failed to fetch products");
@@ -38,26 +38,24 @@ export const fetchCart = createAsyncThunk<CartItem[], string>(
   }
 );
 
+
 export const addToCart = createAsyncThunk<CartItem, CartItem>(
   "cart/addToCart",
   async (cartItem, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        return rejectWithValue("No token provided");
-      }
-      
+      if (!token) return rejectWithValue("No token provided");
+
       const response = await axios.post(`${apiUrl}/cart`, cartItem, {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      return response.data;
+
+      return response.data; 
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(
-          error.response.data?.message || "Failed to add product to cart"
-        );
+        return rejectWithValue(error.response.data?.message || "Failed to add product to cart");
       }
       return rejectWithValue("Failed to add product to cart");
     }
@@ -73,9 +71,9 @@ export const removeFromCart = createAsyncThunk<string, string>(
       return productId;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to fetch product details");
+        return rejectWithValue(error.response.data?.message || "Failed to remove product");
       }
-      return rejectWithValue("Failed to fetch product details");
+      return rejectWithValue("Failed to remove product");
     }
   }
 );
@@ -101,15 +99,26 @@ const cartSlice = createSlice({
 
       .addCase(addToCart.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(addToCart.fulfilled, (state, action: PayloadAction<CartItem>) => {
         state.loading = false;
-        state.items.push(action.payload);
+
+        const existingIndex = state.items.findIndex(
+          (item) => item.product === action.payload.product
+        );
+
+        if (existingIndex >= 0) {
+          state.items[existingIndex].quantity += action.payload.quantity;
+        } else {
+          state.items.push(action.payload);
+        }
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
+
       .addCase(removeFromCart.pending, (state) => {
         state.loading = true;
       })
