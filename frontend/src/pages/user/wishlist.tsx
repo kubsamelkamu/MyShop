@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 
 const getImageUrl = (image: string | undefined): string => {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
-    if (!image) return "/fallback.jpg"; 
+    if (!image) return "/fallback-image.jpg"; // You can replace this with your own fallback image
     return image.startsWith("http") ? image : `${backendUrl}${image}`;
   };
   
@@ -61,9 +61,9 @@ const WishlistPage = () => {
 
   if (error) {
     return(
-      <UserLayout>
-          <div className="text-center text-red-500">{error}</div>;
-      </UserLayout>
+        <UserLayout>
+            <div className="text-center text-red-500">{error}</div>;
+        </UserLayout>
     ) 
   }
 
@@ -99,7 +99,7 @@ const WishlistPage = () => {
                     <span className="text-lg font-semibold">${item.product.price}</span>
                     <div className="space-x-2">
                         <button
-                        onClick={() => handleMoveToCart(item)} 
+                        onClick={() => handleMoveToCart(item)} // full item object, not just ID
                         className="bg-green-500 text-white py-1 px-4 rounded hover:bg-green-600 transition"
                         >
                         Move to Cart
@@ -117,7 +117,7 @@ const WishlistPage = () => {
                 );
             })}
             </div>
-          )}
+            )}
         </div>
     </UserLayout>
   );
