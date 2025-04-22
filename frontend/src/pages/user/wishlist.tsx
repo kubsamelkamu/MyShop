@@ -1,14 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 import UserLayout from "@/components/user/UserLayout";
+import { addToCart } from "@/store/slices/cartSlice";
 import { fetchWishlist, removeFromWishlist } from "@/store/slices/wishListSlice";
 import { AppDispatch, RootState } from "@/store/store";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
-const getImageUrl = (image: string): string => {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
-  return image.startsWith("http") ? image : `${backendUrl}${image}`;
-};
+const getImageUrl = (image: string | undefined): string => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+    if (!image) return "/fallback.jpg"; 
+    return image.startsWith("http") ? image : `${backendUrl}${image}`;
+  };
+  
 
 const WishlistPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -22,20 +27,44 @@ const WishlistPage = () => {
     dispatch(removeFromWishlist(productId));
   };
 
-  const handleMoveToCart = (productId: string) => {
-    console.log("Moving product to cart:", productId);
+  const handleMoveToCart = async (item: any) => {
+    try {
+      const result = await dispatch(
+        addToCart({
+          product: item.product._id,
+          quantity: 1,
+          price: item.product.price,
+        })
+      );
+  
+      if (addToCart.fulfilled.match(result)) {
+        await dispatch(removeFromWishlist(item.product._id));
+        toast.success("Item moved to cart");
+      } else {
+        toast.error("Failed to move item to cart");
+      }
+    } catch{
+      toast.error("Something went wrong");
+    }
   };
-
+  
+  
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-blue-500"></div>
-      </div>
+     <UserLayout>
+        <div className="flex justify-center items-center py-20">
+            <div className="animate-spin mt-10 rounded-full h-32 w-32 border-t-4 border-blue-500"></div>
+        </div>
+     </UserLayout>
     );
   }
 
   if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
+    return(
+      <UserLayout>
+          <div className="text-center text-red-500">{error}</div>;
+      </UserLayout>
+    ) 
   }
 
   return (
@@ -70,11 +99,12 @@ const WishlistPage = () => {
                     <span className="text-lg font-semibold">${item.product.price}</span>
                     <div className="space-x-2">
                         <button
-                        onClick={() => handleMoveToCart(item.product._id)}
+                        onClick={() => handleMoveToCart(item)} 
                         className="bg-green-500 text-white py-1 px-4 rounded hover:bg-green-600 transition"
                         >
                         Move to Cart
                         </button>
+
                         <button
                         onClick={() => handleRemove(item.product._id)}
                         className="bg-red-500 text-white py-1 px-4 rounded hover:bg-red-600 transition"
@@ -87,7 +117,7 @@ const WishlistPage = () => {
                 );
             })}
             </div>
-            )}
+          )}
         </div>
     </UserLayout>
   );
