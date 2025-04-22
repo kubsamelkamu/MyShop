@@ -18,15 +18,27 @@ const ProductDetail = () => {
     }
   }, [dispatch, id]);
 
-  if (loading) return <p className="text-center my-10">Loading product...</p>;
-  if (error) return <p className="text-red-500 text-center my-10">{error}</p>;
+  if (loading) return(
+    <UserLayout>
+        <p className="text-center my-10">Loading product...</p>;
+    </UserLayout>
+  );
+
+  if (error) return(
+    <UserLayout>
+         <p className="text-red-500 text-center my-10">{error}</p>;
+    </UserLayout>
+  );
+
 
   return productDetails ? (
     <UserLayout>
       <ProductDetailPage product={productDetails} />
     </UserLayout>
   ) : (
-    <p className="text-center my-10">Product not found</p>
+    <UserLayout>
+      <p className="text-2xl text-blue-600">Product not found.</p>
+    </UserLayout>
   );
 };
 
