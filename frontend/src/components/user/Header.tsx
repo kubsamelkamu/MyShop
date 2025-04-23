@@ -33,9 +33,9 @@ const Header = () => {
           
           <nav className="hidden md:flex items-center space-x-8">
             <NavIcon href="/" icon={FiHome} label="Home" />
-            <NavIcon href="/products" icon={FiBox} label="Products" />
+            <NavIcon href="/user/product" icon={FiBox} label="Products" />
             <div className="flex items-center space-x-6 ml-4">
-              <NavIcon href="/cart" icon={FiShoppingCart} label="Cart"  />
+              <NavIcon href="/user/cart" icon={FiShoppingCart} label="Cart"  />
               <NavIcon href="/user/wishlist" icon={FiHeart} label="Wishlist"  />
               {user ? (
                 <Link
@@ -72,10 +72,10 @@ const Header = () => {
             <Link href="/" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
               <FiHome className="h-6 w-6" /> Home
             </Link>
-            <Link href="/products" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
+            <Link href="/user/product" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
               <FiBox className="h-6 w-6" /> Products
             </Link>
-            <Link href="/cart" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
+            <Link href="/user/cart" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
               <FiShoppingCart className="h-6 w-6" /> Cart
             </Link>
             <Link href="/user/wishlist" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
