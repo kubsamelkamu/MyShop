@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useState } from "react";
-import { FiMenu, FiX, FiShoppingCart, FiHome, FiBox, FiHeart, FiUser } from "react-icons/fi";
+import { FiMenu,FiClipboard, FiX, FiShoppingCart, FiBox, FiHeart, FiUser } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { IconType } from "react-icons";
@@ -32,19 +32,18 @@ const Header = () => {
           </Link>        
           
           <nav className="hidden md:flex items-center space-x-8">
-            <NavIcon href="/user/dashboard" icon={FiHome} label="Home" />
             <NavIcon href="/user/product" icon={FiBox} label="Products" />
+            <NavIcon href="/user/orders" icon={FiClipboard} label="Orders" />
             <div className="flex items-center space-x-6 ml-4">
               <NavIcon href="/user/cart" icon={FiShoppingCart} label="Cart"  />
               <NavIcon href="/user/wishlist" icon={FiHeart} label="Wishlist"  />
               {user ? (
-                <Link
-                  href="/account"
+                <div
                   className="flex items-center space-x-2 text-white hover:text-blue-200 p-2 rounded-full hover:bg-white/10 transition-all duration-300"
                 >
                   <FiUser className="h-6 w-6" />
                   <span className="hidden lg:inline-block text-sm">{user.name}</span>
-                </Link>
+                </div>
               ) : (
                 <Link
                   href="/auth/login"
@@ -69,11 +68,11 @@ const Header = () => {
 
         {menuOpen && (
           <nav className="md:hidden mt-4 pb-4 space-y-4">
-            <Link href="/" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
-              <FiHome className="h-6 w-6" /> Home
-            </Link>
             <Link href="/user/product" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
               <FiBox className="h-6 w-6" /> Products
+            </Link>
+            <Link href="/user/orders" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
+              <FiBox className="h-6 w-6" /> Orders
             </Link>
             <Link href="/user/cart" onClick={() => setMenuOpen(false)} className=" text-white hover:text-blue-200 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors duration-300 flex items-center gap-2">
               <FiShoppingCart className="h-6 w-6" /> Cart
