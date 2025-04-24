@@ -159,6 +159,25 @@ export const updateOrderStatus = createAsyncThunk<Order, { orderId: string; orde
   }
 );
 
+export const payOrder = createAsyncThunk<Order, { orderId: string; paymentResult: { id: string; status: string; update_time: string } }>(
+  'orders/payOrder',
+  async ({ orderId, paymentResult }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `${apiUrl}/orders/${orderId}/pay`,
+        paymentResult,
+        getAuthHeader()
+      );
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data?.message || 'Payment update failed');
+      }
+      return rejectWithValue('Payment update failed');
+    }
+  }
+);
+
 
 const orderSlice = createSlice({
   name: 'orders',
@@ -236,7 +255,24 @@ const orderSlice = createSlice({
       })
       .addCase(updateOrderStatus.rejected, (state, action) => {
         state.error = action.payload as string;
-      });
+      })
+      .addCase(payOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(payOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.orderDetails && state.orderDetails._id === action.payload._id) {
+          state.orderDetails = action.payload;
+        }
+        state.orders = state.orders.map((order) =>
+          order._id === action.payload._id ? action.payload : order
+        );
+      })
+      .addCase(payOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
   },
 });
 
