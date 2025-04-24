@@ -1,79 +1,110 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import type { Product } from "./productSlice";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-interface CartItem {
-  product: string; 
+export interface CartItem {
+  product: Product;  
   quantity: number;
   price: number;
 }
 
 interface CartState {
-  userId: string | null;
   items: CartItem[];
   loading: boolean;
   error: string | null;
 }
 
 const initialState: CartState = {
-  userId: null,
   items: [],
   loading: false,
   error: null,
 };
 
-export const fetchCart = createAsyncThunk<CartItem[], string>(
+export const fetchCart = createAsyncThunk<CartItem[], void>(
   "cart/fetchCart",
-  async (userId, { rejectWithValue }) => {
-    try {
-      const response = await axios.get(`${apiUrl}/cart/${userId}`);
-      return response.data.items;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to fetch products");
-      }
-      return rejectWithValue("Failed to fetch products");
-    }
-  }
-);
-
-
-export const addToCart = createAsyncThunk<CartItem, CartItem>(
-  "cart/addToCart",
-  async (cartItem, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) return rejectWithValue("No token provided");
-
-      const response = await axios.post(`${apiUrl}/cart`, cartItem, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      return response.data; 
-    } catch (error: unknown) {
+      const response = await axios.get(
+        `${apiUrl}/cart`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return response.data.items as CartItem[];
+    } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to add product to cart");
+        return rejectWithValue(error.response.data?.message || "Failed to fetch cart");
       }
-      return rejectWithValue("Failed to add product to cart");
+      return rejectWithValue("Failed to fetch cart");
     }
   }
 );
 
+export const addToCart = createAsyncThunk<CartItem, { product: string; quantity: number; price: number }>(
+  "cart/addToCart",
+  async ({ product, quantity, price }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token provided");
+
+      const response = await axios.post(
+        `${apiUrl}/cart`,
+        { product, quantity, price },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const added = response.data.items.find((i: any) => i.product._id === product);
+      return added as CartItem;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data?.message || "Failed to add to cart");
+      }
+      return rejectWithValue(error.message || "Failed to add to cart");
+    }
+  }
+);
+
+export const updateCartItem = createAsyncThunk<
+  { productId: string; quantity: number },
+  { productId: string; quantity: number }
+>(
+  "cart/updateCartItem",
+  async ({ productId, quantity }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${apiUrl}/cart/${productId}`,
+        { quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return { productId, quantity };
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(
+          error.response.data?.message || "Failed to update cart item"
+        );
+      }
+      return rejectWithValue(error.message || "Failed to update cart item");
+    }
+  }
+);
 
 export const removeFromCart = createAsyncThunk<string, string>(
   "cart/removeFromCart",
   async (productId, { rejectWithValue }) => {
     try {
-      await axios.delete(`${apiUrl}/cart/${productId}`);
+      const token = localStorage.getItem("token");
+      await axios.delete(
+        `${apiUrl}/cart/${productId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       return productId;
-    } catch (error: unknown) {
+    } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data?.message || "Failed to remove product");
+        return rejectWithValue(error.response.data?.message || "Failed to remove from cart");
       }
-      return rejectWithValue("Failed to remove product");
+      return rejectWithValue("Failed to remove from cart");
     }
   }
 );
@@ -96,20 +127,17 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-
       .addCase(addToCart.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(addToCart.fulfilled, (state, action: PayloadAction<CartItem>) => {
         state.loading = false;
-
-        const existingIndex = state.items.findIndex(
-          (item) => item.product === action.payload.product
+        const idx = state.items.findIndex(
+          (i) => i.product._id === action.payload.product._id
         );
-
-        if (existingIndex >= 0) {
-          state.items[existingIndex].quantity += action.payload.quantity;
+        if (idx >= 0) {
+          state.items[idx].quantity = action.payload.quantity;
         } else {
           state.items.push(action.payload);
         }
@@ -118,13 +146,35 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-
+      .addCase(updateCartItem.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        updateCartItem.fulfilled,
+        (state, action: PayloadAction<{ productId: string; quantity: number }>) => {
+          state.loading = false;
+          const idx = state.items.findIndex(
+            (i) => i.product._id === action.payload.productId
+          );
+          if (idx >= 0) {
+            state.items[idx].quantity = action.payload.quantity;
+          }
+        }
+      )
+      .addCase(updateCartItem.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
       .addCase(removeFromCart.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(removeFromCart.fulfilled, (state, action: PayloadAction<string>) => {
         state.loading = false;
-        state.items = state.items.filter((item) => item.product !== action.payload);
+        state.items = state.items.filter(
+          (i) => i.product._id !== action.payload
+        );
       })
       .addCase(removeFromCart.rejected, (state, action) => {
         state.loading = false;
