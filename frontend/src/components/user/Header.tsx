@@ -21,18 +21,18 @@ const NavIcon = ({ href, icon: Icon, label, count = 0 }: { href: string; icon: I
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user } = useSelector((state: RootState & { auth: { user: { name: string } } }) => state.auth);
 
   return (
     <header className="bg-gradient-to-r from-blue-800 to-indigo-900 shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-4 py-5 ">
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-white hover:text-blue-200 transition-colors duration-300">
+          <Link href="/user/dashboard" className="text-2xl font-bold text-white hover:text-blue-200 transition-colors duration-300">
             MyShop
           </Link>        
           
           <nav className="hidden md:flex items-center space-x-8">
-            <NavIcon href="/" icon={FiHome} label="Home" />
+            <NavIcon href="/user/dashboard" icon={FiHome} label="Home" />
             <NavIcon href="/user/product" icon={FiBox} label="Products" />
             <div className="flex items-center space-x-6 ml-4">
               <NavIcon href="/user/cart" icon={FiShoppingCart} label="Cart"  />
