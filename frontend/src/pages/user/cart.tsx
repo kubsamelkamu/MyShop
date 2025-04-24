@@ -11,6 +11,7 @@ import {
 } from "@/store/slices/cartSlice";
 import { Product } from "@/store/slices/productSlice";
 import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 const getImageUrl = (image?: string): string => {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
@@ -21,6 +22,7 @@ const getImageUrl = (image?: string): string => {
 const CartPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { items, loading, error } = useSelector((state: RootState) => state.cart);
+  const router = useRouter();
 
   useEffect(() => {
     dispatch(fetchCart());
@@ -138,6 +140,7 @@ const CartPage: React.FC = () => {
               </p>
               <button
                 disabled={items.length === 0}
+                onClick={()=>router.push('/user/checkout')}
                 className="w-full bg-blue-600 disabled:bg-gray-400 text-white py-2 rounded"
               >
                 Proceed to Checkout
