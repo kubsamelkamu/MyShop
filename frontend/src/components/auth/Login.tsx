@@ -56,7 +56,7 @@ const Login = () => {
 
         {message && (
           <div className="mb-4 text-center text-sm text-red-600 bg-red-100 p-2 rounded">
-            Invalid Credential , please try again.
+            {message}
           </div>
         )}
 
