@@ -30,7 +30,7 @@ const SignUp = () => {
         router.push("/auth/login");
       }, 1500);
     } catch (error: unknown) {
-      setMessage(error instanceof Error ? error.message : "An unknown error occurred.");
+      setMessage(error instanceof Error ? error.message : "error occurred.");
     } 
   };
 
