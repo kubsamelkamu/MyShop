@@ -45,8 +45,8 @@ const CartPage: React.FC = () => {
     dispatch(removeFromCart(prodId));
   };
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  const totalItems = items.reduce((sum, item) => sum + (item?.quantity || 0), 0);
+  const subtotal = items.reduce((sum, item) => sum + ((item?.quantity || 0) * (item?.price || 0)), 0);
 
   if (loading) {
     return (
@@ -75,12 +75,14 @@ const CartPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto pr-4">
-              {items.map((item: CartItem) => {
+              {items.map((item: CartItem, index: number) => {
+                if (!item || !item.product) return null;
+
                 const prod = item.product as Product;
-                if (!prod) return null;
+
                 return (
                   <div
-                    key={prod._id}
+                    key={prod._id || index}
                     className="bg-white p-4 rounded-lg shadow flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4"
                   >
                     <img
@@ -140,7 +142,7 @@ const CartPage: React.FC = () => {
               </p>
               <button
                 disabled={items.length === 0}
-                onClick={()=>router.push('/user/checkout')}
+                onClick={() => router.push("/user/checkout")}
                 className="w-full bg-blue-600 disabled:bg-gray-400 text-white py-2 rounded"
               >
                 Proceed to Checkout

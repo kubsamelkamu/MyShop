@@ -115,9 +115,9 @@ const WishlistPage: React.FC = () => {
                   </h3>
                   <p className="text-gray-600 mb-2">{prod.description}</p>
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold">
-                      ${prod.price.toFixed(2)}
-                    </span>
+                  <span className="text-lg font-semibold">
+                    ${prod.price ? prod.price.toFixed(2) : "0.00"}
+                  </span>
                     <div className="space-x-2">
                       <button
                         onClick={() => handleMoveToCart(wishItem)}

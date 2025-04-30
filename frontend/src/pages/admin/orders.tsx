@@ -25,7 +25,7 @@ const Orders = () => {
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
-      const userName = typeof order.user === "object" ? (order.user as { name: string }).name : order.user;
+      const userName = order.user && typeof order.user === "object" ? (order.user as { name: string }).name : order.user;
       const searchLower = searchTerm.toLowerCase();
       return (
         order._id.toLowerCase().includes(searchLower) ||
