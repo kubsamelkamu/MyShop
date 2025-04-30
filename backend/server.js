@@ -5,7 +5,7 @@ import xss from "xss-clean";
 import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import { limiter } from './middleware/authMiddleware.js';
+//import { limiter } from './middleware/authMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
@@ -25,7 +25,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(xss()); 
-app.use(limiter);
+//app.use(limiter);  
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 app.use("/api/auth", authRoutes);
