@@ -1,16 +1,16 @@
 import React, { ReactNode } from "react";
-import Navbar from "./NavBar";
+import Header from "./Header";
 import Footer from "./Footer";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const UserLayout = ({ children }: LayoutProps) => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-grow container mx-auto">
+      <Header />
+      <main className="flex-grow overflow-auto bg-gray-100">
         {children}
       </main>
       <Footer />
@@ -18,4 +18,4 @@ const Layout = ({ children }: LayoutProps) => {
   );
 };
 
-export default Layout;
+export default UserLayout;

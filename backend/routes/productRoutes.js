@@ -5,9 +5,24 @@ import  {protect,admin } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 router.get("/", async (req, res) => {
+
   try {
-    const products = await Product.find({});
-    res.json(products);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 8; 
+    const skip = (page - 1) * limit;
+
+    const productsPromise = Product.find({}).skip(skip).limit(limit);
+    const countPromise = Product.countDocuments({});
+    const [products, count] = await Promise.all([productsPromise, countPromise]);
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      products,
+      currentPage: page,
+      totalPages,
+      totalProducts: count,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }

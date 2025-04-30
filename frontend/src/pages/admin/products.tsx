@@ -10,30 +10,23 @@ import { toast } from "react-toastify";
 
 const Products = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { products, loading, error } = useSelector((state: RootState) => state.products);
+  const { products, totalPages, loading, error } = useSelector((state: RootState) => state.products);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const[searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize =5;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 5; 
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    dispatch(fetchProducts({ page, limit: pageSize }));
+  }, [dispatch, page, pageSize]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [products, searchQuery]);
-
-  const totalPages = Math.ceil(filteredProducts.length / pageSize);
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredProducts.slice(startIndex, startIndex + pageSize);
-  }, [filteredProducts, currentPage, pageSize]);
-
 
   const handleAdd = () => {
     setSelectedProduct(null);
@@ -50,7 +43,7 @@ const Products = () => {
       .unwrap()
       .then(() => {
         toast.success("Product deleted successfully!");
-        dispatch(fetchProducts());
+        dispatch(fetchProducts({ page, limit: pageSize }));
       })
       .catch((err) => {
         toast.error("Failed to delete product: " + err);
@@ -63,9 +56,8 @@ const Products = () => {
         .unwrap()
         .then(() => {
           toast.success("Product updated successfully!");
-          dispatch(fetchProducts());
+          dispatch(fetchProducts({ page, limit: pageSize }));
           setIsModalOpen(false);
-          toast.success("Product updated successfully!");
         })
         .catch((err) => {
           toast.error("Failed to update product: " + err);
@@ -75,7 +67,7 @@ const Products = () => {
         .unwrap()
         .then(() => {
           toast.success("Product added successfully!");
-          dispatch(fetchProducts());
+          dispatch(fetchProducts({ page, limit: pageSize }));
           setIsModalOpen(false);
         })
         .catch((err) => {
@@ -102,7 +94,7 @@ const Products = () => {
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1); 
+              setPage(1);
             }}
             className="border px-3 py-2 rounded w-full md:w-1/3"
           />
@@ -110,25 +102,25 @@ const Products = () => {
 
         {loading && <p>Loading products...</p>}
         {error && <p className="text-red-500">{error}</p>}
-        <ProductTable products={paginatedProducts} onEdit={handleEdit} onDelete={handleDelete} />
-
+        <ProductTable products={filteredProducts} onEdit={handleEdit} onDelete={handleDelete} />
+        
         {totalPages > 1 && (
           <div className="flex justify-center items-center mt-4">
             <button
               type="button"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
               className="px-3 py-1 border rounded-l disabled:opacity-50"
             >
               Prev
             </button>
             <span className="px-4 py-1 border-t border-b">
-              Page {currentPage} of {totalPages}
+              Page {page} of {totalPages}
             </span>
             <button
               type="button"
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={page === totalPages}
               className="px-3 py-1 border rounded-r disabled:opacity-50"
             >
               Next
@@ -137,7 +129,11 @@ const Products = () => {
         )}
 
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-          <ProductForm product={selectedProduct} onClose={() => setIsModalOpen(false)} onSubmit={handleFormSubmit} />
+          <ProductForm
+            product={selectedProduct}
+            onClose={() => setIsModalOpen(false)}
+            onSubmit={handleFormSubmit}
+          />
         </Modal>
       </div>
     </AdminLayout>

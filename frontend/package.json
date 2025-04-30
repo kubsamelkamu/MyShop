@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
+    "@stripe/react-stripe-js": "^3.6.0",
+    "@stripe/stripe-js": "^7.2.0",
     "axios": "^1.8.4",
     "next": "15.2.3",
     "react": "^19.0.0",
@@ -20,7 +22,8 @@
     "react-spinners": "^0.15.0",
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.2",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "stripe": "^18.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -28,6 +31,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/stripe": "^8.0.416",
     "eslint": "^9",
     "eslint-config-next": "15.2.3",
     "tailwindcss": "^4",

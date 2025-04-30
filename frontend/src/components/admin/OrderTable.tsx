@@ -30,36 +30,43 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, onView, onEdit }) => {
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => {
-            const userName =
-              typeof order.user === "object" ? order.user.name : order.user;
-            return (
-              <tr key={order._id} className="border-b">
-                <td className="py-2 px-4">{order._id}</td>
-                <td className="py-2 px-4">{userName}</td>
-                <td className="py-2 px-4">${order.totalPrice}</td>
-                <td className="py-2 px-4">{order.orderStatus}</td>
-                <td className="py-2 px-4">
-                  {new Date(order.createdAt).toLocaleDateString()}
-                </td>
-                <td className="py-2 px-4 text-center flex justify-center gap-2">
-                  <button
-                    onClick={() => onView(order._id)}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <FiEye />
-                  </button>
-                  <button
-                    onClick={() => onEdit(order._id)}
-                    className="text-green-500 hover:text-green-700"
-                  >
-                    <FiEdit />
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
+        {orders.map(order => {
+          const userName =
+            order.user && typeof order.user === "object"
+              ? order.user.name
+              : typeof order.user === "string"
+              ? order.user
+              : "Unknown";
+
+          return (
+            <tr key={order._id} className="border-b">
+              <td className="py-2 px-4">{order._id}</td>
+              <td className="py-2 px-4">{userName}</td>
+              <td className="py-2 px-4">${order.totalPrice}</td>
+              <td className="py-2 px-4">{order.orderStatus}</td>
+              <td className="py-2 px-4">
+                {new Date(order.createdAt).toLocaleDateString()}
+              </td>
+              <td className="py-2 px-4 text-center flex justify-center gap-2">
+                <button
+                  aria-label="View order"
+                  onClick={() => onView(order._id)}
+                  className="text-blue-500 hover:text-blue-700"
+                >
+                  <FiEye />
+                </button>
+                <button
+                  aria-label="Edit order"
+                  onClick={() => onEdit(order._id)}
+                  className="text-green-500 hover:text-green-700"
+                >
+                  <FiEdit />
+                </button>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
       </table>
     </div>
   );
