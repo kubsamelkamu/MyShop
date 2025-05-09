@@ -1,4 +1,4 @@
-# MyShop — Next.js + Express E-commerce
+# MyShop — E-commerce
 
 
 A full-stack e-commerce web application with:
@@ -12,7 +12,7 @@ A full-stack e-commerce web application with:
 
 ---
 
-## 🚀 Features
+##  Features
 
 - **Authentication**: Sign up / Log in (JWT stored via redux-persist)  
 - **Shop**: Browse products, filter by category, search by name  
@@ -25,11 +25,10 @@ A full-stack e-commerce web application with:
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Frontend**: Next.js, React, Tailwind CSS, Redux Toolkit, react-toastify  
 - **Backend**: Node.js, Express, MongoDB (Mongoose), Stripe API  
-- **Authentication**: JWT, bcrypt  
 
 ---
 
